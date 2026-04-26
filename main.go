@@ -72,7 +72,7 @@ type ContactData struct {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  Кешування шаблонів (Fix Issue #1) + константи (Fix Issue #2)
+//  Кешування шаблонів (Fix Issue #1)
 // ══════════════════════════════════════════════════════════════════════════════
 
 var templates map[string]*template.Template
@@ -99,6 +99,28 @@ func render(w http.ResponseWriter, page string, data any) {
 	if err := tmpl.ExecuteTemplate(w, layoutTemplate, data); err != nil {
 		http.Error(w, "Помилка рендерингу", http.StatusInternalServerError)
 	}
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  Валідація форми (Fix Issue #3)
+// ══════════════════════════════════════════════════════════════════════════════
+
+// validateContactForm перевіряє поля форми зворотного зв'язку.
+// Повертає рядок з повідомленням про помилку або порожній рядок якщо все ок.
+func validateContactForm(name, email, message string) string {
+	if strings.TrimSpace(name) == "" {
+		return "Будь ласка, введіть ваше ім'я!"
+	}
+	if strings.TrimSpace(email) == "" {
+		return "Будь ласка, введіть email!"
+	}
+	if !strings.Contains(email, "@") {
+		return "Введіть коректний email (має містити @)!"
+	}
+	if strings.TrimSpace(message) == "" {
+		return "Будь ласка, введіть повідомлення!"
+	}
+	return ""
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -179,34 +201,31 @@ func factsHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, "facts", data)
 }
 
+// contactHandler — обробляє GET (форма) та POST (надсилання).
+// Валідація делегована функції validateContactForm (Fix Issue #3).
 func contactHandler(w http.ResponseWriter, r *http.Request) {
 	data := ContactData{
 		PageData: PageData{Title: "Контакти", Page: "contact"},
 	}
+
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
-			fmt.Fprintf(w, "<p>Помилка: %v</p>", err)
+			http.Error(w, fmt.Sprintf("Помилка: %v", err), http.StatusBadRequest)
 			return
 		}
+
 		data.IsPost = true
 		data.FormName = r.PostForm.Get("name")
 		data.FormEmail = r.PostForm.Get("email")
 		data.FormSubject = r.PostForm.Get("subject")
 		data.FormMessage = r.PostForm.Get("message")
-		if strings.TrimSpace(data.FormName) == "" {
+
+		if errMsg := validateContactForm(data.FormName, data.FormEmail, data.FormMessage); errMsg != "" {
 			data.HasError = true
-			data.ErrorMsg = "Будь ласка, введіть ваше ім'я!"
-		} else if strings.TrimSpace(data.FormEmail) == "" {
-			data.HasError = true
-			data.ErrorMsg = "Будь ласка, введіть email!"
-		} else if !strings.Contains(data.FormEmail, "@") {
-			data.HasError = true
-			data.ErrorMsg = "Введіть коректний email (має містити @)!"
-		} else if strings.TrimSpace(data.FormMessage) == "" {
-			data.HasError = true
-			data.ErrorMsg = "Будь ласка, введіть повідомлення!"
+			data.ErrorMsg = errMsg
 		}
 	}
+
 	render(w, "contact", data)
 }
 
