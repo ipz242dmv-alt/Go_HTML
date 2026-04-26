@@ -11,38 +11,27 @@ import (
 //  Типи даних для шаблонів
 // ══════════════════════════════════════════════════════════════════════════════
 
-// PageData — базові змінні для всіх сторінок
 type PageData struct {
 	Title string
 	Page  string
 }
-
-// FamousPerson — відома людина
 type FamousPerson struct {
 	Name     string
 	Activity string
 	Years    string
 }
-
-// HomeData — дані для головної сторінки
 type HomeData struct {
 	PageData
 	Famous []FamousPerson
 }
-
-// HistoryEvent — подія в хронології
 type HistoryEvent struct {
 	Year  string
 	Event string
 }
-
-// HistoryData — дані для сторінки історії
 type HistoryData struct {
 	PageData
 	Events []HistoryEvent
 }
-
-// Attraction — пам'ятка
 type Attraction struct {
 	Icon        string
 	Name        string
@@ -50,26 +39,18 @@ type Attraction struct {
 	Address     string
 	Color       string
 }
-
-// AttractionsData — дані для сторінки пам'яток
 type AttractionsData struct {
 	PageData
 	Attractions []Attraction
 }
-
-// Stat — статистичний факт
 type Stat struct {
 	Value string
 	Label string
 }
-
-// FactsData — дані для сторінки фактів
 type FactsData struct {
 	PageData
 	Stats []Stat
 }
-
-// ContactData — дані для сторінки контактів
 type ContactData struct {
 	PageData
 	IsPost      bool
@@ -82,23 +63,39 @@ type ContactData struct {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  Завантаження шаблонів
+//  Кешування шаблонів (Fix Issue #1)
 // ══════════════════════════════════════════════════════════════════════════════
 
-// parseTemplate — завантажує layout + сторінку і повертає шаблон
-func parseTemplate(page string) *template.Template {
-	tmpl := template.Must(template.ParseFiles(
-		"templates/layout.html",
-		"templates/"+page+".html",
-	))
-	return tmpl
+var templates map[string]*template.Template
+
+// initTemplates парсить усі шаблони один раз при старті програми
+func initTemplates() {
+	pages := []string{"home", "history", "attractions", "facts", "contact"}
+	templates = make(map[string]*template.Template, len(pages))
+	for _, page := range pages {
+		templates[page] = template.Must(template.ParseFiles(
+			"templates/layout.html",
+			"templates/"+page+".html",
+		))
+	}
+}
+
+// render виконує шаблон для заданої сторінки
+func render(w http.ResponseWriter, page string, data any) {
+	tmpl, ok := templates[page]
+	if !ok {
+		http.Error(w, "Сторінку не знайдено", http.StatusNotFound)
+		return
+	}
+	if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {
+		http.Error(w, "Помилка рендерингу", http.StatusInternalServerError)
+	}
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  Обробники сторінок
 // ══════════════════════════════════════════════════════════════════════════════
 
-// homeHandler — головна сторінка
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
@@ -115,11 +112,9 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 			{"Микола Щорс", "Радянський військовий діяч, командарм", "1895–1919"},
 		},
 	}
-	tmpl := parseTemplate("home")
-	tmpl.ExecuteTemplate(w, "layout.html", data)
+	render(w, "home", data)
 }
 
-// historyHandler — сторінка історії
 func historyHandler(w http.ResponseWriter, r *http.Request) {
 	data := HistoryData{
 		PageData: PageData{Title: "Історія", Page: "history"},
@@ -140,64 +135,24 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 			{"2022", "Місто витримує ракетні удари в ході повномасштабного вторгнення Росії"},
 		},
 	}
-	tmpl := parseTemplate("history")
-	tmpl.ExecuteTemplate(w, "layout.html", data)
+	render(w, "history", data)
 }
 
-// attractionsHandler — сторінка пам'яток
 func attractionsHandler(w http.ResponseWriter, r *http.Request) {
 	data := AttractionsData{
 		PageData: PageData{Title: "Пам'ятки", Page: "attractions"},
 		Attractions: []Attraction{
-			{
-				Icon:        "⛪",
-				Name:        "Кафедральний собор святого Михайла",
-				Description: "Одна з найстаріших православних споруд міста, збудована у XVIII столітті. Є духовним і архітектурним символом Житомира.",
-				Address:     "майдан Соборний",
-				Color:       "",
-			},
-			{
-				Icon:        "🕍",
-				Name:        "Костел святої Софії",
-				Description: "Барочний римо-католицький костел, збудований у 1737–1751 роках. Один з найкрасивіших архітектурних пам'ятників міста.",
-				Address:     "вул. Михайлівська, 10",
-				Color:       "green",
-			},
-			{
-				Icon:        "🏛️",
-				Name:        "Краєзнавчий музей",
-				Description: "Один з найстаріших музеїв України (1865 р.). Зберігає понад 200 000 експонатів з природи, археології та етнографії Житомирщини.",
-				Address:     "вул. Михайлівська, 1",
-				Color:       "orange",
-			},
-			{
-				Icon:        "🚀",
-				Name:        "Музей космонавтики ім. С. П. Корольова",
-				Description: "Присвячений уродженцю Житомира — видатному конструктору Сергію Корольову. Містить унікальні експонати ракетно-космічної техніки.",
-				Address:     "вул. Дмитрівська, 5",
-				Color:       "purple",
-			},
-			{
-				Icon:        "🌉",
-				Name:        "Замковий міст і скелі на Тетереві",
-				Description: "Мальовниче місце над річкою Тетерів із гранітними скелями і видом на старе місто. Популярне місце прогулянок та фотосесій.",
-				Address:     "набережна Тетереву",
-				Color:       "teal",
-			},
-			{
-				Icon:        "🎭",
-				Name:        "Обласний музичний театр",
-				Description: "Провідний театральний заклад Житомирщини. Репертуар включає опери, оперети, мюзикли та балетні вистави.",
-				Address:     "майдан Соборний, 2",
-				Color:       "",
-			},
+			{"⛪", "Кафедральний собор святого Михайла", "Одна з найстаріших православних споруд міста, збудована у XVIII столітті. Є духовним і архітектурним символом Житомира.", "майдан Соборний", ""},
+			{"🕍", "Костел святої Софії", "Барочний римо-католицький костел, збудований у 1737–1751 роках. Один з найкрасивіших архітектурних пам'ятників міста.", "вул. Михайлівська, 10", "green"},
+			{"🏛️", "Краєзнавчий музей", "Один з найстаріших музеїв України (1865 р.). Зберігає понад 200 000 експонатів з природи, археології та етнографії Житомирщини.", "вул. Михайлівська, 1", "orange"},
+			{"🚀", "Музей космонавтики ім. С. П. Корольова", "Присвячений уродженцю Житомира — видатному конструктору Сергію Корольову. Містить унікальні експонати ракетно-космічної техніки.", "вул. Дмитрівська, 5", "purple"},
+			{"🌉", "Замковий міст і скелі на Тетереві", "Мальовниче місце над річкою Тетерів із гранітними скелями і видом на старе місто. Популярне місце прогулянок та фотосесій.", "набережна Тетереву", "teal"},
+			{"🎭", "Обласний музичний театр", "Провідний театральний заклад Житомирщини. Репертуар включає опери, оперети, мюзикли та балетні вистави.", "майдан Соборний, 2", ""},
 		},
 	}
-	tmpl := parseTemplate("attractions")
-	tmpl.ExecuteTemplate(w, "layout.html", data)
+	render(w, "attractions", data)
 }
 
-// factsHandler — сторінка фактів
 func factsHandler(w http.ResponseWriter, r *http.Request) {
 	data := FactsData{
 		PageData: PageData{Title: "Факти", Page: "facts"},
@@ -212,30 +167,23 @@ func factsHandler(w http.ResponseWriter, r *http.Request) {
 			{"3", "річки протікають через місто"},
 		},
 	}
-	tmpl := parseTemplate("facts")
-	tmpl.ExecuteTemplate(w, "layout.html", data)
+	render(w, "facts", data)
 }
 
-// contactHandler — сторінка контактів з обробкою POST
 func contactHandler(w http.ResponseWriter, r *http.Request) {
 	data := ContactData{
 		PageData: PageData{Title: "Контакти", Page: "contact"},
 	}
-
 	if r.Method == http.MethodPost {
-		err := r.ParseForm()
-		if err != nil {
+		if err := r.ParseForm(); err != nil {
 			fmt.Fprintf(w, "<p>Помилка: %v</p>", err)
 			return
 		}
-
 		data.IsPost = true
 		data.FormName = r.PostForm.Get("name")
 		data.FormEmail = r.PostForm.Get("email")
 		data.FormSubject = r.PostForm.Get("subject")
 		data.FormMessage = r.PostForm.Get("message")
-
-		// Валідація
 		if strings.TrimSpace(data.FormName) == "" {
 			data.HasError = true
 			data.ErrorMsg = "Будь ласка, введіть ваше ім'я!"
@@ -250,9 +198,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 			data.ErrorMsg = "Будь ласка, введіть повідомлення!"
 		}
 	}
-
-	tmpl := parseTemplate("contact")
-	tmpl.ExecuteTemplate(w, "layout.html", data)
+	render(w, "contact", data)
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -260,6 +206,8 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 // ══════════════════════════════════════════════════════════════════════════════
 
 func main() {
+	initTemplates() // ← шаблони парсяться один раз при старті
+
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/history", historyHandler)
 	http.HandleFunc("/attractions", attractionsHandler)
@@ -279,7 +227,6 @@ func main() {
 	fmt.Println("║     /contact     — Контакти           ║")
 	fmt.Println("║   Ctrl+C для зупинки                  ║")
 	fmt.Println("╚═══════════════════════════════════════╝")
-
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		fmt.Println("Помилка сервера:", err)
 	}
