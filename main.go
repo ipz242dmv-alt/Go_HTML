@@ -8,6 +8,15 @@ import (
 )
 
 // ══════════════════════════════════════════════════════════════════════════════
+//  Константи (Fix Issue #2)
+// ══════════════════════════════════════════════════════════════════════════════
+
+const (
+	layoutTemplate = "layout.html"
+	templatesDir   = "templates/"
+)
+
+// ══════════════════════════════════════════════════════════════════════════════
 //  Типи даних для шаблонів
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -63,7 +72,7 @@ type ContactData struct {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  Кешування шаблонів (Fix Issue #1)
+//  Кешування шаблонів (Fix Issue #1) + константи (Fix Issue #2)
 // ══════════════════════════════════════════════════════════════════════════════
 
 var templates map[string]*template.Template
@@ -74,8 +83,8 @@ func initTemplates() {
 	templates = make(map[string]*template.Template, len(pages))
 	for _, page := range pages {
 		templates[page] = template.Must(template.ParseFiles(
-			"templates/layout.html",
-			"templates/"+page+".html",
+			templatesDir+layoutTemplate,
+			templatesDir+page+".html",
 		))
 	}
 }
@@ -87,7 +96,7 @@ func render(w http.ResponseWriter, page string, data any) {
 		http.Error(w, "Сторінку не знайдено", http.StatusNotFound)
 		return
 	}
-	if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {
+	if err := tmpl.ExecuteTemplate(w, layoutTemplate, data); err != nil {
 		http.Error(w, "Помилка рендерингу", http.StatusInternalServerError)
 	}
 }
@@ -206,7 +215,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 // ══════════════════════════════════════════════════════════════════════════════
 
 func main() {
-	initTemplates() // ← шаблони парсяться один раз при старті
+	initTemplates()
 
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/history", historyHandler)
