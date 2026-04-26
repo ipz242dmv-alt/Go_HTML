@@ -1,0 +1,56 @@
+{{ define "content" }}
+<div class="page-hero">
+    <h2>📊 Факти про Житомир</h2>
+    <p>Цифри та цікаві факти про обласний центр Житомирської області.</p>
+</div>
+
+<h3 class="section-title">Місто в цифрах</h3>
+<div class="facts-grid">
+    {{ range .Stats }}
+    <div class="fact-box">
+        <div class="fact-num">{{ .Value }}</div>
+        <div class="fact-label">{{ .Label }}</div>
+    </div>
+    {{ end }}
+</div>
+
+<h3 class="section-title">Цікаві факти</h3>
+<div class="cards">
+    <div class="card">
+        <div class="card-header">🚀 Космічний зв'язок</div>
+        <div class="card-body">
+            <p>Житомир — батьківщина видатного конструктора ракетної техніки <strong>Сергія Корольова</strong> (1907–1966), головного творця першого штучного супутника Землі та ракети-носія «Восток», яка вивела у космос Юрія Гагаріна.</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header green">🎵 Музичне місто</div>
+        <div class="card-body">
+            <p>Житомир — батьківщина відомого польського композитора і піаніста <strong>Кароля Шимановського</strong> (1882–1937), одного з найвидатніших представників польської музики XX століття.</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header orange">⛏️ Камінь Бердичів</div>
+        <div class="card-body">
+            <p>Поблизу Житомира розташовані родовища <strong>лабрадориту</strong> — декоративного каменю, що використовувався при будівництві московського метро та багатьох інших відомих споруд по всьому СРСР.</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header purple">📻 Медіа-центр</div>
+        <div class="card-body">
+            <p>Житомир має власне регіональне телебачення, радіостанції та низку онлайн-видань. Місто є важливим медіа-центром Центральної України.</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header teal">🏆 Спорт</div>
+        <div class="card-body">
+            <p>Житомир має розвинену спортивну інфраструктуру. Тут є стадіони, спортивні школи та клуби. Місто виховало чимало відомих спортсменів, зокрема у боксі, легкій атлетиці та футболі.</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">🎭 Культура</div>
+        <div class="card-body">
+            <p>У місті діють <strong>Житомирський обласний музичний театр</strong>, <strong>Театр ляльок</strong>, <strong>Краєзнавчий музей</strong> та низка галерей. Щороку проводяться культурні фестивалі та заходи.</p>
+        </div>
+    </div>
+</div>
+{{ end }}

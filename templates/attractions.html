@@ -1,0 +1,50 @@
+{{ define "content" }}
+<div class="page-hero">
+    <h2>🏛️ Пам'ятки Житомира</h2>
+    <p>Житомир багатий на архітектурні, природні та культурні пам'ятки. Тут є що подивитися кожному мандрівнику — від стародавніх костелів до мальовничих скель над Тетеревом.</p>
+</div>
+
+<h3 class="section-title">Головні пам'ятки</h3>
+<div class="cards">
+    {{ range .Attractions }}
+    <div class="card">
+        <div class="card-header {{ .Color }}">{{ .Icon }} {{ .Name }}</div>
+        <div class="card-body">
+            <p>{{ .Description }}</p>
+            {{ if .Address }}
+            <p style="margin-top:10px; font-size:0.85rem; color:#777;">📍 {{ .Address }}</p>
+            {{ end }}
+        </div>
+    </div>
+    {{ end }}
+</div>
+
+<h3 class="section-title">Природні пам'ятки</h3>
+<table class="data-table">
+    <thead>
+        <tr><th>Назва</th><th>Тип</th><th>Опис</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Скелі на Тетереві</strong></td>
+            <td>Геологічна пам'ятка</td>
+            <td>Гранітні виходи вздовж річки Тетерів — популярне місце для прогулянок і фотографій</td>
+        </tr>
+        <tr>
+            <td><strong>Парк культури і відпочинку</strong></td>
+            <td>Міський парк</td>
+            <td>Центральний міський парк з атракціонами, алеями та зонами відпочинку</td>
+        </tr>
+        <tr>
+            <td><strong>Дендропарк</strong></td>
+            <td>Ботанічна пам'ятка</td>
+            <td>Колекція дерев та чагарників з різних регіонів світу</td>
+        </tr>
+        <tr>
+            <td><strong>Річка Кам'янка</strong></td>
+            <td>Природний об'єкт</td>
+            <td>Притока Тетереву з мальовничими берегами в межах міста</td>
+        </tr>
+    </tbody>
+</table>
+{{ end }}
