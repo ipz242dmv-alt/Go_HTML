@@ -39,7 +39,7 @@ func factsHandler(w http.ResponseWriter, r *http.Request) { ... }
 func contactHandler(w http.ResponseWriter, r *http.Request) { ... }
 ```
 
-> **Файл:** [`main.go`, рядки 83–220](main.go)
+> **Файл:** [`main.go`, рядки 83–220](main.go#L83-L220)
 
 ---
 
@@ -64,7 +64,7 @@ type HistoryData struct {
 }
 ```
 
-> **Файл:** [`main.go`, рядки 14–70](main.go) — всі типи даних  
+> **Файл:** [`main.go`, рядки 14–70](main.go#L14-L70) — всі типи даних  
 > **Файл:** [`templates/home.html`](templates/home.html) — шаблон представлення
 
 ---
@@ -90,7 +90,7 @@ type HistoryData struct {
 }
 ```
 
-> **Файл:** [`main.go`, рядки 16–55](main.go)
+> **Файл:** [`main.go`, рядки 16–55](main.go#L16-L55)
 
 ---
 
@@ -107,7 +107,7 @@ import (
 )
 ```
 
-> **Файл:** [`main.go`, рядки 1–8](main.go)
+> **Файл:** [`main.go`, рядки 1–8](main.go#L1-L8)
 
 ---
 
@@ -125,7 +125,7 @@ func parseTemplate(page string) *template.Template {
 }
 ```
 
-> **Файл:** [`main.go`, рядки 74–80](main.go)
+> **Файл:** [`main.go`, рядки 74–80](main.go#L74-L80)
 
 ---
 
@@ -149,7 +149,7 @@ if strings.TrimSpace(data.FormName) == "" {
 }
 ```
 
-> **Файл:** [`main.go`, рядки 195–208](main.go)
+> **Файл:** [`main.go`, рядки 195–208](main.go#L195-L208)
 
 ---
 
@@ -170,4 +170,4 @@ func parseTemplate(page string) *template.Template {
 }
 ```
 
-> **Файл:** [`main.go`, рядки 74–80](main.go)
+> **Файл:** [`main.go`, рядки 74–80](main.go#L74-L80)
