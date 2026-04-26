@@ -21,7 +21,7 @@ func parseTemplate(page string) *template.Template {
 }
 ```
 
-> **Файл:** [`main.go`, рядки 74–80](main.go#L74-80) — функція `parseTemplate`  
+> **Файл:** [`main.go`, рядки 74–80](main.go#L74-L80) — функція `parseTemplate`  
 > **Файл:** [`templates/layout.html`](templates/layout.html) — єдиний layout для всього сайту
 
 ---
